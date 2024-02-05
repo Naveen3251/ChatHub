@@ -1,7 +1,9 @@
+import { InputWithButton } from "@/components/inputwithbutton";
+
 const WebSiteChat=()=>{
     return(
-        <div>
-            website
+        <div className="pt-16 flex justify-center">
+            <InputWithButton/>
         </div>
     )
 }
