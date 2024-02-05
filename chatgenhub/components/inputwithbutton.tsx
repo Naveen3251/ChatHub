@@ -3,10 +3,15 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
-import { useState,useEffect} from 'react';
+import { useState} from 'react';
+import { useRouter } from 'next/navigation';
 
 export const InputWithButton=()=>{
+  //routing 
+  const router = useRouter();
   const [Url,setUrl]=useState('');
+  const [scrapeSuccess, setScrapeSuccess] = useState(false);
+
   //url validation
   const isValidURL=(url:string):boolean=>{
     const regex = /^(http(s)?:\/\/.)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/;
@@ -31,9 +36,8 @@ export const InputWithButton=()=>{
                 });
         
                 if (response.ok) {
-                  const data = await response.text();
-                  console.log('Scraped Data:', data);
-                  // Handle the scraped data as needed
+                  console.log("Done!");
+                  setScrapeSuccess(true);
                 } else {
                   console.error('Failed to fetch:', response.status);
                 }
@@ -42,16 +46,32 @@ export const InputWithButton=()=>{
               }
         }
     }
-
   }
+  // go to next route
+  const handleChattingRoute=()=>{
+    router.push('/chat'); 
+  }
+
+
   return (
     <div className="flex w-full max-w-sm items-center space-x-2">
-      <Input 
-        onChange={(e)=>setUrl(e.target.value)}
-        value={Url}
-        placeholder="WebSite URL" 
-      />
-      <Button onClick={()=>handleSubmitUrl()}>Generate</Button>
+      {!scrapeSuccess && (
+        <div className="flex w-full max-w-sm items-center space-x-2">
+          <Input
+            onChange={(e) => setUrl(e.target.value)}
+            value={Url}
+            placeholder="WebSite URL"
+          />
+          <Button onClick={() => handleSubmitUrl()}>Generate</Button>
+        </div>
+      )}
+
+      {scrapeSuccess && (
+        <div>
+          <p>Scrape Successful!</p>
+          <Button onClick={() => handleChattingRoute()}>Let's Go</Button>
+        </div>
+      )}
     </div>
   )
 }
