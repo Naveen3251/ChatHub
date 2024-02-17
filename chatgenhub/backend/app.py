@@ -1,112 +1,164 @@
-# backend/app.py
-from flask import Flask, request, jsonify, Response
-import requests
+from flask import Flask, request, jsonify
 from flask_cors import CORS
-import logging
-#environment
-from dotenv import load_dotenv
+import os
+import requests
 
-#langchain
-#for scraping the website
-from langchain_community.document_loaders import WebBaseLoader
-#for spliting docs into difrent chunks
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-#for storing vectors
-from langchain_community.vectorstores import Chroma
-#embedings model
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
-#prompting
-from langchain_core.prompts import ChatPromptTemplate,MessagesPlaceholder
-#retrieving 
-from langchain.chains import create_history_aware_retriever,create_retrieval_chain
-#documents
-from langchain.chains.combine_documents import create_stuff_documents_chain
+from text import TextAI
+from image import ImageAI
+from video import VideoConverter
 
-load_dotenv()
+syntax = {
+    "video_title": "Title (title should be seo optimized and trendy)",
+    "video_description": "Description of the video",
+    "scripts": {
+        "part1": {
+            "text": "script for part 1, dont include any expression , voice effect or anything just plain text",
+            "image": "image prompt for part 1(image prompt should be very different from each other so that the images are different and it should be very descriptivem, you can use keywords like light effect, background colour, type of scene, 2d, 3d , etc.)",
+        },
+        "part2": {
+            "text": "script for part 2, dont include any expression , voice effect or anything just plain text",
+            "image": "image prompt for part 2(image prompt should be very different from each other so that the images are different and it should be very descriptivem, you can use keywords like light effect, background colour, type of scene, 2d, 3d , etc.)",
+        },
+        "part3": {
+            "text": "script for part 3, dont include any expression , voice effect or anything just plain text",
+            "image": "image prompt for part 3(image prompt should be very different from each other so that the images are different and it should be very descriptivem, you can use keywords like light effect, background colour, type of scene, 2d, 3d , etc.)",
+        },
+        "part4": {
+            "text": "script for part 4, dont include any expression , voice effect or anything just plain text",
+            "image": "image prompt for part 4(image prompt should be very different from each other so that the images are different and it should be very descriptivem, you can use keywords like light effect, background colour, type of scene, 2d, 3d , etc.)",
+        },
+        "part5": {
+            "text": "script for part 5, dont include any expression , voice effect or anything just plain text",
+            "image": "image prompt for part 5(image prompt should be very different from each other so that the images are different and it should be very descriptivem, you can use keywords like light effect, background colour, type of scene, 2d, 3d , etc.)",
+        },
+    },
+}
+
+prompt = {
+    "template": """- you are a professional content creator and you need to write a video script on the following notes: {topic} , script should be {duration} long dont go beyond limit and it should be engaging
+    - script should be in {language} language
+    - strictly follow the this syntax:
+    - SYNTAX:{syntax}
+    - use double quotes for the keys and values for json so that we can parse it easily
+    - number of parts should be based on number of images which is {images}.
+    - you can add details from your own knowledge
+    - be creative
+    - keep the tone of the script {genre}
+    - return only the script nothing else just the script
+    - this video should go viral on youtube shorts and tiktok
+    - give just the script that i can directly pass to text to speech no voice effect no background just the voiceover
+    - dont add any sound effects or background music just plain text
+    - image prompts should be very very descriptive more than 15 words
+    - also keep in mind following instructions:
+    INSTUCTIONS:{instructions}""",
+    "input_variables": [
+        "topic",
+        "duration",
+        "genre",
+        "instructions",
+        "language",
+        "images",
+        "syntax",
+    ],
+}
+
 
 app = Flask(__name__)
-CORS(app,origins="http://localhost:3000", supports_credentials=True)  # Enable CORS for all routes
+CORS(app, origins="http://localhost:3000", supports_credentials=True)
 
+#API-1
+@app.route('/script', methods=['POST'])
+def script():
+    # Extract data from the request's JSON body
+    '''print("hi")
+    request_data = request.json
+    print(request_data)
+    topic = request_data.get('topic')
+    duration = request_data.get('duration')
+    genre = request_data.get('genre')
+    instructions = request_data.get('instructions')
+    language = request_data.get('language')
+    images = request_data.get('images')
+   
+    # Instantiate TextAI
+    text_ai = TextAI()
+    # Generate the script using TextAI
+    generated_script = text_ai.predict(
+        prompt,
+        topic=topic,
+        duration=duration,
+        genre=genre,
+        instructions=instructions,
+        language=language,
+        images=images,
+        syntax=syntax,
+    )
+    print(generated_script)'''
+    generated_script=''
+    return jsonify({"generated_script": generated_script})
 
-def get_vectorstore_from_url(url):
-    #scraping
-    loader=WebBaseLoader(url)
-    #take the documents
-    document=loader.load()
-    #debug
-    print(document)
-    #split the docmunents into diffrent chunks of text
-    text_splitter=RecursiveCharacterTextSplitter()
-    document_chunks=text_splitter.split_documents(document)
-    print('##############')
-    print(document_chunks)
-    #create vector store
-    #vector_store=Chroma.from_documents(document_chunks,OpenAIEmbeddings())
-    #logging.info("Finised vector")
-    return ''
+#API-2
+@app.route('/videogenerate', methods=['POST'])
+def videogenerate():
 
-def get_context_retriever_chain(vector_store):
-     #context retriever chain
-    llm=ChatOpenAI()
-    retriever=vector_store.as_retriever()
-
-    user_prompt=ChatPromptTemplate.from_messages([
-        MessagesPlaceholder(variable_name="chat_history"),
-        ("user","{input}"),
-        ("user", "Given the above conversation, generate a search query to look up in order to get information relevant to the conversation")
-    ])
-
-    retriever_chain=create_history_aware_retriever(llm,retriever,user_prompt)
-    return retriever_chain
+    request_data = request.json
+    audioSrc=request_data.get('audioSrc')
+    scriptPara=request_data.get('scriptPara')
+    imagePromptArray=request_data.get('imagePromptArray')
+    imagePromptPara=request_data.get('imagePromptPara')
+    print(imagePromptArray)
     
-def get_conversational_rag_chain(retriever_chain):
-    llm = ChatOpenAI()
+    #makeinng folders to store images
+    temp_dir = 'C:/ChatHub/chatgenhub/backend/images'
+    print(temp_dir)
+    '''
+    #############
+    #makeing foler to store audio
+    save_dir = 'C:/ChatHub/chatgenhub/backend/audio'
+    file_name = audioSrc.split('/')[-1]
+    print(file_name)
+    file_path = os.path.join(save_dir, file_name)
+
+    response = requests.get(audioSrc) #getting the audio file
+
+    if response.status_code == 200:
+        # Write the audio content to the file
+        with open(file_path, 'wb') as f:
+            f.write(response.content)
+            print(f"Audio file saved successfully to: {file_path}")
+    else:
+        print("Failed to download audio file.")
+    ######################
+   '''
+    '''#imageAI
+    image_ai=ImageAI()
+    print(imagePromptArray)
+    image_paths = []
+    for i, prompt in enumerate(imagePromptArray):
+        path = os.path.join(temp_dir, f"{i}.png")
+        path = os.path.abspath(path)
+        print(path)
+        try:
+            image_ai.generate(
+            prompt=prompt,
+            inference_params={
+                "quality": "standard",
+                "size": "1024x1024",
+                },
+                output_file=path,
+            )
+            image_paths.append(path)
+        except Exception as e:
+            print(f"Error generating image: {e}")
     
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", "Answer the user's questions based on the below context:\n\n{context}"),
-        MessagesPlaceholder(variable_name="chat_history"),
-        ("user", "{input}"),
-    ])
-    
-    stuff_documents_chain = create_stuff_documents_chain(llm,prompt)
-    
-    return create_retrieval_chain(retriever_chain, stuff_documents_chain)
-     
-def get_response(vector_store,user_input):
-    retriever_chain = get_context_retriever_chain(vector_store)
-    conversation_rag_chain = get_conversational_rag_chain(retriever_chain)
-    
-    response = conversation_rag_chain.invoke({
-        "chat_history": st.session_state.chat_history,
-        "input": user_input
-    })
-    
-    return response['answer']
+'''
+    #video AI
+    video_converter = VideoConverter()
+    path=video_converter.create_video()
+            
+    print(path)
+  
+    return jsonify({"generated_video": path})
 
-
-#flask API
-@app.route('/scrape', methods=['POST'])
-def scrape():
-    try:
-        url = request.json.get('url')
-        vector_store=get_vectorstore_from_url(url)
-        logging.info("Scraping successful.")
-        return jsonify({'success': "Stored in chromadb"}),200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-@app.route('/chatting', methods=['POST'])
-def chatting(user_input):
-        response=get_response(user_input)
-        # Combine the contents of all documents into a single string
-        #response_content = '\n'.join(doc.page_content for doc in document)
-
-        # Create a Flask Response with the combined content
-        response = Response(response, content_type='text/plain')
-
-        return response
-    
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)

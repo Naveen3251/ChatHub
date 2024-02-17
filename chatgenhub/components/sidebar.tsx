@@ -1,8 +1,9 @@
 "use client"
 import { cn } from "@/lib/utils";
-import { Home, BrainCircuit } from "lucide-react";
+import { Home, BrainCircuit,Video } from "lucide-react";
 //for navigation 
 import { usePathname,useRouter } from "next/navigation";
+
 export const Sidebar=()=>{
      //it tracks the url path where we are in
      const pathname=usePathname();
@@ -23,7 +24,11 @@ export const Sidebar=()=>{
              label:"Chat",
           
          },
-         
+         {
+            icon:Video,
+            href:'/video-creation',
+            label:"Video"
+         }
      ]
  
      //for navigation

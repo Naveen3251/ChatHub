@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input"
 import { useState} from 'react';
 import { useRouter } from 'next/navigation';
 
+import axios from "axios";
+
+
 export const InputWithButton=()=>{
   //routing 
   const router = useRouter();
@@ -27,29 +30,23 @@ export const InputWithButton=()=>{
             try {
                 //scraping the data using beatufullsoup at the backend use of python
                 //flask end point
-                const response = await fetch('http://localhost:5000/scrape', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({ url: Url }),
-                });
-        
-                if (response.ok) {
-                  console.log("Done!");
-                  setScrapeSuccess(true);
-                } else {
-                  console.error('Failed to fetch:', response.status);
-                }
-              } catch (error) {
+                await axios.post(`/api/vector/`,Url)
+                console.log("Done!");
+                setScrapeSuccess(true);
+              
+              } 
+              catch (error) {
                 console.error('Error:', error);
               }
+            
+               
         }
     }
   }
   // go to next route
-  const handleChattingRoute=()=>{
-    router.push('/chat'); 
+  const handleChattingRoute=async()=>{
+    
+    await axios.post(`/api/answer/`,"Give code for React Click event handling")
   }
 
 
@@ -72,6 +69,11 @@ export const InputWithButton=()=>{
           <Button onClick={() => handleChattingRoute()}>Let's Go</Button>
         </div>
       )}
+      <div>
+          <p>Scrape Successful!</p>
+          <Button onClick={() => handleChattingRoute()}>Let's Go</Button>
+      </div>
+      
     </div>
   )
 }
