@@ -43,7 +43,7 @@ export const InputWithButton=()=>{
   }
   // go to next route
   const handleChattingRoute=()=>{
-    router.push('/websitechat/chatform')
+    router.push("/chatform")
     //await axios.post(`/api/answer/`,"Give code for React Click event handling")
     
   }

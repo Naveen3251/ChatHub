@@ -24,7 +24,7 @@ interface ChatCompletionRequestMessage{
     role:"user" | "system",
     content:string
 }
-const Chat = () => {
+export const Chat = () => {
   const router = useRouter();
 
   const [messages, setMessages] = useState<ChatCompletionRequestMessage[]>([]);
@@ -139,4 +139,3 @@ const Chat = () => {
    );
 }
  
-export default Chat;
