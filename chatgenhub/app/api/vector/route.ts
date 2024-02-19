@@ -8,7 +8,7 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { PineconeStore } from "@langchain/pinecone";
 import { Pinecone } from "@pinecone-database/pinecone"
 
-//import { HNSWLib } from "langchain/vectorstores/hnswlib";
+
 import { currentUser } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
 
@@ -57,7 +57,7 @@ export async function POST(req:Request){
 
 
   }catch(error){
-      console.log("[COMPANION_POST]",error);
+     
       return new NextResponse("Internal Error",{status:500})
   }
 }

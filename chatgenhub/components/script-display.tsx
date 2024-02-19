@@ -74,6 +74,8 @@ export const ScriptDisplay=({video_title,video_description,scripts}:GeneratedScr
         })
         console.log(video_src.data)
         setVideoSrc(video_src.data)
+        console.log(videoSrc)
+        console.log(videoSrc)
     }
 
     return(

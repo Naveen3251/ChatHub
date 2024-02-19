@@ -1,6 +1,6 @@
 "use client"
 import { cn } from "@/lib/utils";
-import { Home, BrainCircuit,Video } from "lucide-react";
+import { Home, BrainCircuit,Video, ScanEye} from "lucide-react";
 //for navigation 
 import { usePathname,useRouter } from "next/navigation";
 
@@ -28,6 +28,11 @@ export const Sidebar=()=>{
             icon:Video,
             href:'/video-creation',
             label:"Video"
+         },
+         {
+            icon:ScanEye,
+            href:'/jd-validation',
+            label:"JD"
          }
      ]
  

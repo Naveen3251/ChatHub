@@ -1,20 +1,18 @@
 "use client"
-
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
-import { useState} from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import axios from "axios";
-
 
 export const InputWithButton=()=>{
   //routing 
   const router = useRouter();
   const [Url,setUrl]=useState('');
   const [scrapeSuccess, setScrapeSuccess] = useState(false);
-
+ 
   //url validation
   const isValidURL=(url:string):boolean=>{
     const regex = /^(http(s)?:\/\/.)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/;
@@ -44,9 +42,10 @@ export const InputWithButton=()=>{
     }
   }
   // go to next route
-  const handleChattingRoute=async()=>{
+  const handleChattingRoute=()=>{
+    router.push('/websitechat/chatform')
+    //await axios.post(`/api/answer/`,"Give code for React Click event handling")
     
-    await axios.post(`/api/answer/`,"Give code for React Click event handling")
   }
 
 
@@ -73,6 +72,10 @@ export const InputWithButton=()=>{
           <p>Scrape Successful!</p>
           <Button onClick={() => handleChattingRoute()}>Let's Go</Button>
       </div>
+      
+     
+
+       
       
     </div>
   )

@@ -18,8 +18,9 @@ export async function POST(req:Request) {
     
     try{
       //data body
-      const question=await req.text();
-  
+      //const question=await req.text();
+      const body = await req.json();
+      const { messages  } = body;
       //fetch current user
       const user=await currentUser();
   
@@ -30,9 +31,9 @@ export async function POST(req:Request) {
       if(!user || !user.id || !user.firstName){
           return new NextResponse("Unauthorized",{status:401});
       }
-      console.log(question);
+      console.log(messages);
   
-      //Vector store were we stored embedings
+     /* //Vector store were we stored embedings
       const vectorStore = await PineconeStore.fromExistingIndex(
         new OpenAIEmbeddings(),
         { pineconeIndex }
@@ -56,8 +57,8 @@ export async function POST(req:Request) {
         context: await retriever.invoke(question),
         question: question
       });
-      console.log(answer)
-      return NextResponse.json(answer);
+      console.log(answer)*/
+      return NextResponse.json(messages);
   
     }catch(error){
       console.log("[COMPANION_POST]",error);
